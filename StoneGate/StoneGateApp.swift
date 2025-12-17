@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct StoneGateApp: App {
+    @StateObject private var authManager = AuthManager()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if authManager.isAuthenticated {
+                    MainTabView()
+                        .environmentObject(authManager)
+                } else {
+                    LoginView()
+                        .environmentObject(authManager)
+                }
+            }
+            .preferredColorScheme(.dark) // Темная тема по умолчанию
         }
     }
 }
