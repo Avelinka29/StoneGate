@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @Environment(\.theme) private var theme
+    @State private var showInvestmentModal = false
     private let chartPoints: [CGPoint] = [
         CGPoint(x: 0, y: 110),
         CGPoint(x: 40, y: 90),
@@ -60,6 +61,21 @@ struct DashboardView: View {
                     )
             }
         }
+        .overlay(
+            Group {
+                if showInvestmentModal {
+                    Color.black.opacity(0.5)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            showInvestmentModal = false
+                        }
+
+                    InvestmentModalView(isPresented: $showInvestmentModal)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                        .zIndex(1)
+                }
+            }
+        )
     }
 
     private var topNavigation: some View {
@@ -201,7 +217,9 @@ struct DashboardView: View {
     }
 
     private var investButton: some View {
-        Button(action: {}) {
+        Button(action: {
+            showInvestmentModal = true
+        }) {
             Text("Инвестировать")
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundColor(theme.primaryBackground)
@@ -297,6 +315,99 @@ private struct PartialHoldingRow: View {
         .padding()
         .background(theme.tertiaryBackground)
         .cornerRadius(16)
+    }
+}
+
+private struct InvestmentModalView: View {
+    @Environment(\.theme) private var theme
+    @Environment(\.dismiss) private var dismiss
+    @Binding var isPresented: Bool
+
+    var body: some View {
+        VStack(spacing: 20) {
+            // Header with close button
+            HStack {
+                Text("Научём инвестировать?")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundColor(theme.primaryText)
+
+                Spacer()
+
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(theme.secondaryText)
+                        .frame(width: 28, height: 28)
+                        .background(theme.tertiaryBackground)
+                        .clipShape(Circle())
+                }
+            }
+
+            // Subtitle
+            Text("Выберите, как вы хотите начать")
+                .font(.system(size: 14, weight: .regular, design: .rounded))
+                .foregroundColor(theme.secondaryText)
+                .multilineTextAlignment(.center)
+
+            // Buttons
+            VStack(spacing: 12) {
+                // Пройти обучение button
+                Button(action: {
+                    // TODO: Navigate to learning module
+                    print("Starting learning module...")
+                    isPresented = false
+                }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "book.open")
+                            .font(.system(size: 18))
+                            .foregroundColor(theme.primaryBackground)
+
+                        Text("Пройти обучение")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(theme.primaryBackground)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(theme.accentColor)
+                    .cornerRadius(12)
+                }
+
+                // Начать сразу button
+                Button(action: {
+                    // TODO: Navigate to main investment interface
+                    print("Starting investment interface...")
+                    isPresented = false
+                }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "paperplane")
+                            .font(.system(size: 18))
+                            .foregroundColor(theme.primaryText)
+
+                        Text("Начать сразу")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(theme.primaryText)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(theme.secondaryBackground)
+                    .cornerRadius(12)
+                }
+            }
+
+            // Footer text
+            Text("Если вы новичок, мы рекомендуем пройти обучение. Оно займёт немного времени.")
+                .font(.system(size: 12, weight: .regular, design: .rounded))
+                .foregroundColor(theme.tertiaryText)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+        }
+        .padding(20)
+        .background(theme.cardBackground)
+        .cornerRadius(16)
+        .shadow(color: theme.shadowColor, radius: 20, x: 0, y: 10)
+        .frame(width: 320)
     }
 }
 
