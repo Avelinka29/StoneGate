@@ -3,6 +3,7 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var showInvestmentModal = false
+    @State private var showLearningView = false
 
     private var theme: Theme {
         ThemeManager.shared.isDarkMode ? Theme() : Theme()
@@ -74,11 +75,18 @@ struct DashboardView: View {
                             showInvestmentModal = false
                         }
 
-                    InvestmentModalView(isPresented: $showInvestmentModal)
+                    InvestmentModalView(isPresented: $showInvestmentModal) {
+                        showLearningView = true
+                    }
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                         .zIndex(1)
                 }
             }
+            .background(
+                NavigationLink(destination: LearningView(), isActive: $showLearningView) {
+                    EmptyView()
+                }
+            )
         )
     }
 
@@ -326,6 +334,7 @@ private struct InvestmentModalView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
+    var onStartLearning: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 20) {
@@ -359,9 +368,8 @@ private struct InvestmentModalView: View {
             VStack(spacing: 12) {
                 // Пройти обучение button
                 Button(action: {
-                    // TODO: Navigate to learning module
-                    print("Starting learning module...")
                     isPresented = false
+                    onStartLearning?()
                 }) {
                         HStack(spacing: 12) {
                             Image(systemName: "book.open")
