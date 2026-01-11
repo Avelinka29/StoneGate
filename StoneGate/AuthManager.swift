@@ -173,7 +173,7 @@ class AuthManager: ObservableObject {
         NetworkManager.shared.authToken = token
     }
 
-    private func getToken() -> String? {
+    func getToken() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,

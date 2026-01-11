@@ -3,7 +3,7 @@ import Foundation
 class NetworkManager {
     static let shared = NetworkManager()
 
-    private let baseURL = "http://192.168.1.101:8000" // URL FastAPI сервера
+    private let baseURL = "http://127.0.0.1:8001" // URL FastAPI сервера
     var authToken: String?
 
     private init() {}
@@ -27,6 +27,9 @@ class NetworkManager {
         // Добавляем токен авторизации если есть
         if let token = authToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("DEBUG NetworkManager: Adding Authorization header: Bearer \(token)")
+        } else {
+            print("DEBUG NetworkManager: No auth token available")
         }
 
         // Добавляем тело запроса если есть
@@ -34,13 +37,20 @@ class NetworkManager {
             request.httpBody = try JSONEncoder().encode(body)
         }
 
+        print("DEBUG NetworkManager: Making request to: \(method) \(url)")
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
 
+        print("DEBUG NetworkManager: Response status: \(httpResponse.statusCode)")
+
         guard (200...299).contains(httpResponse.statusCode) else {
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("DEBUG NetworkManager: Response body: \(responseString)")
+            }
+
             if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
                 throw NetworkError.serverError(errorResponse.detail)
             }

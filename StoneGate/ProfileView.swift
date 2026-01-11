@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var themeManager: ThemeManager
+    @EnvironmentObject private var authManager: AuthManager
     @State private var biometricsEnabled: Bool = true
 
     var body: some View {
@@ -114,6 +115,11 @@ struct ProfileView: View {
                        title: "Верификация",
                        trailingText: "Подтверждён",
                        trailingColor: .green)
+            NavigationLink(destination: CardsListView()
+                .environmentObject(authManager)
+                .environmentObject(ThemeManager.shared)) {
+                ProfileRow(icon: "creditcard", title: "Банковские карты")
+            }
         }
         .padding()
         .background(theme.cardBackground)
@@ -205,4 +211,6 @@ private struct ToggleRow: View {
 
 #Preview {
     ProfileView()
+        .environmentObject(ThemeManager.shared)
+        .environmentObject(AuthManager())
 }
