@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.theme) private var theme
     @State private var selectedTab = 0
     @State private var loginEmail = ""
     @State private var loginPassword = ""
@@ -16,7 +17,7 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                theme.primaryBackground.ignoresSafeArea()
 
                 VStack(spacing: 32) {
                     Spacer(minLength: 12)
@@ -24,11 +25,11 @@ struct LoginView: View {
                     VStack(spacing: 8) {
                         Text("StoneGate")
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                            .foregroundColor(theme.primaryText)
 
                         Text("Умные финансы, безопасное инвестирование")
                             .font(.system(size: 15, weight: .regular, design: .rounded))
-                            .foregroundColor(.gray)
+                            .foregroundColor(theme.secondaryText)
                     }
                     .multilineTextAlignment(.center)
 
@@ -40,7 +41,7 @@ struct LoginView: View {
                                 VStack(spacing: 6) {
                                     Text("Email / Телефон")
                                         .font(.footnote)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     AuthRoundedField(placeholder: "Введите ваш email или телефон",
@@ -51,7 +52,7 @@ struct LoginView: View {
                                 VStack(spacing: 6) {
                                     Text("Пароль")
                                         .font(.footnote)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     AuthRoundedField(placeholder: "Введите ваш пароль",
@@ -69,7 +70,7 @@ struct LoginView: View {
                                 VStack(spacing: 6) {
                                     Text("Имя")
                                         .font(.footnote)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     AuthRoundedField(placeholder: "Введите ваше имя",
@@ -79,7 +80,7 @@ struct LoginView: View {
                                 VStack(spacing: 6) {
                                     Text("Email")
                                         .font(.footnote)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     AuthRoundedField(placeholder: "Введите ваш email",
@@ -90,7 +91,7 @@ struct LoginView: View {
                                 VStack(spacing: 6) {
                                     Text("Пароль")
                                         .font(.footnote)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(theme.secondaryText)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     AuthRoundedField(placeholder: "Придумайте пароль",
@@ -125,7 +126,7 @@ struct LoginView: View {
                         Group {
                             if authManager.isLoading {
                                 ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                    .progressViewStyle(CircularProgressViewStyle(tint: theme.primaryBackground))
                             } else {
                                 Text(selectedTab == 0 ? "Войти" : "Зарегистрироваться")
                                     .font(.headline)
@@ -133,8 +134,8 @@ struct LoginView: View {
                             }
                         }
                         .frame(maxWidth: .infinity, minHeight: 56)
-                        .background(Color.green)
-                        .foregroundColor(.black)
+                        .background(theme.accentColor)
+                        .foregroundColor(theme.primaryBackground)
                         .cornerRadius(18)
                         .scaleEffect(isButtonPressed ? 0.98 : 1.0)
                         .animation(.spring(duration: 0.1), value: isButtonPressed)
@@ -163,15 +164,15 @@ struct LoginView: View {
                     HStack(alignment: .center, spacing: 12) {
                         Rectangle()
                             .frame(height: 1)
-                            .foregroundColor(.gray.opacity(0.4))
+                            .foregroundColor(theme.dividerColor)
 
                         Text("Или войдите с помощью")
                             .font(.footnote)
-                            .foregroundColor(.gray)
+                            .foregroundColor(theme.secondaryText)
 
                         Rectangle()
                             .frame(height: 1)
-                            .foregroundColor(.gray.opacity(0.4))
+                            .foregroundColor(theme.dividerColor)
                     }
 
                     HStack(spacing: 24) {
@@ -208,7 +209,7 @@ struct LoginView: View {
 
                     Text("Продолжая, вы соглашаетесь с нашими Условиями использования и Политикой конфиденциальности")
                         .font(.footnote)
-                        .foregroundColor(Color.green)
+                        .foregroundColor(theme.accentColor)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -231,6 +232,7 @@ struct LoginView: View {
 }
 
 private struct AuthTabBar: View {
+    @Environment(\.theme) private var theme
     @Binding var selectedTab: Int
     let animation: Namespace.ID
 
@@ -250,13 +252,13 @@ private struct AuthTabBar: View {
                     Text(tabs[index])
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(selectedTab == index ? .white : .gray)
+                        .foregroundColor(selectedTab == index ? theme.primaryText : theme.secondaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background {
                             if selectedTab == index {
                                 RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color(red: 0.06, green: 0.06, blue: 0.07))
+                                    .fill(theme.tertiaryBackground)
                                     .matchedGeometryEffect(id: "TAB", in: animation)
                             }
                         }
@@ -265,16 +267,17 @@ private struct AuthTabBar: View {
             }
         }
         .padding(6)
-        .background(Color(red: 0.13, green: 0.13, blue: 0.15))
+        .background(theme.tabBackground)
         .cornerRadius(24)
         .overlay(
             RoundedRectangle(cornerRadius: 24)
-                .stroke(Color(red: 0.2, green: 0.2, blue: 0.25), lineWidth: 1)
+                .stroke(theme.borderColor, lineWidth: 1)
         )
     }
 }
 
 private struct AuthRoundedField: View {
+    @Environment(\.theme) private var theme
     let placeholder: String
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
@@ -284,7 +287,7 @@ private struct AuthRoundedField: View {
         ZStack(alignment: .leading) {
             if text.isEmpty {
                 Text(placeholder)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(theme.placeholderText)
                     .font(.body)
             }
 
@@ -299,16 +302,17 @@ private struct AuthRoundedField: View {
             }
             .autocapitalization(.none)
             .disableAutocorrection(true)
-            .foregroundColor(.white)
+            .foregroundColor(theme.primaryText)
         }
         .padding(.horizontal, 16)
         .frame(height: 52)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.12))
+        .background(theme.inputBackground)
         .cornerRadius(18)
     }
 }
 
 private struct SocialCircleButton: View {
+    @Environment(\.theme) private var theme
     let label: String
     let backgroundColor: Color
     let textColor: Color
@@ -339,7 +343,7 @@ private struct SocialCircleButton: View {
             .frame(width: 52, height: 52)
             .background(backgroundColor)
             .clipShape(Circle())
-            .shadow(color: Color.white.opacity(0.08), radius: 2, x: 0, y: 1)
+            .shadow(color: theme.shadowColor, radius: 2, x: 0, y: 1)
             .scaleEffect(isPressed ? 0.95 : 1.0)
             .animation(.spring(duration: 0.1), value: isPressed)
         }

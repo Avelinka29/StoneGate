@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(\.theme) private var theme
     private let chartPoints: [CGPoint] = [
         CGPoint(x: 0, y: 110),
         CGPoint(x: 40, y: 90),
@@ -15,7 +16,7 @@ struct DashboardView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            theme.primaryBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 ScrollView(showsIndicators: false) {
@@ -51,7 +52,7 @@ struct DashboardView: View {
                     .padding(.bottom, 34)
                     .background(
                         LinearGradient(
-                            gradient: Gradient(colors: [Color.black.opacity(0), Color.black]),
+                            gradient: Gradient(colors: [theme.primaryBackground.opacity(0), theme.primaryBackground]),
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -68,7 +69,7 @@ struct DashboardView: View {
                     if let image = phase.image {
                         image.resizable()
                     } else {
-                        Color.gray.opacity(0.3)
+                        theme.secondaryBackground
                     }
                 }
                 .frame(width: 34, height: 34)
@@ -79,13 +80,13 @@ struct DashboardView: View {
 
             Text("Главная")
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
 
             Spacer()
 
             NavigationLink(destination: SettingsView()) {
                 Image(systemName: "gearshape")
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
                     .font(.title3)
             }
         }
@@ -95,17 +96,17 @@ struct DashboardView: View {
         VStack(spacing: 6) {
             Text("Общий баланс")
                 .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(theme.secondaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("5 453,71 BYN")
                 .font(.system(size: 38, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("За сегодня +132,60 BYN (+4,23%)")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundColor(.green)
+                .foregroundColor(theme.positiveColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -136,13 +137,7 @@ struct DashboardView: View {
                     }
                     path.closeSubpath()
                 }
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.green.opacity(0.45), Color.green.opacity(0.02)]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                .fill(theme.chartFillGradient)
                 
                 // Line stroke
                 Path { path in
@@ -157,7 +152,7 @@ struct DashboardView: View {
                         path.addCurve(to: next, control1: controlPoint1, control2: controlPoint2)
                     }
                 }
-                .stroke(Color.green, lineWidth: 3)
+                .stroke(theme.chartLineColor, lineWidth: 3)
             }
         }
         .frame(height: 180)
@@ -187,10 +182,10 @@ struct DashboardView: View {
             ForEach(labels, id: \.self) { label in
                 Text(label)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
                     .padding(.vertical, 8)
                     .frame(maxWidth: .infinity)
-                    .background(Color(red: 0.16, green: 0.16, blue: 0.18))
+                    .background(theme.secondaryBackground)
                     .cornerRadius(14)
             }
         }
@@ -209,16 +204,17 @@ struct DashboardView: View {
         Button(action: {}) {
             Text("Инвестировать")
                 .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryBackground)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(Color.green)
+                .background(theme.accentColor)
                 .cornerRadius(26)
         }
     }
 }
 
 private struct HoldingRow: View {
+    @Environment(\.theme) private var theme
     let logoColor: Color
     let iconText: String
     let title: String
@@ -235,16 +231,16 @@ private struct HoldingRow: View {
                     Text(iconText)
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundColor(logoColor == .white ? .black : .white)
+                        .foregroundColor(logoColor == theme.primaryBackground ? theme.primaryText : theme.primaryBackground)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
                 Text(subtitle)
                     .font(.system(size: 12, weight: .regular, design: .rounded))
-                    .foregroundColor(.gray)
+                    .foregroundColor(theme.secondaryText)
             }
 
             Spacer()
@@ -252,19 +248,21 @@ private struct HoldingRow: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text(amount)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
                 Text(change)
                     .font(.system(size: 12, weight: .regular, design: .rounded))
-                    .foregroundColor(.green)
+                    .foregroundColor(theme.positiveColor)
             }
         }
         .padding()
-        .background(Color(red: 0.07, green: 0.07, blue: 0.09))
+        .background(theme.tertiaryBackground)
         .cornerRadius(16)
     }
 }
 
 private struct PartialHoldingRow: View {
+    @Environment(\.theme) private var theme
+
     var body: some View {
         HStack {
             RoundedRectangle(cornerRadius: 12)
@@ -272,17 +270,17 @@ private struct PartialHoldingRow: View {
                 .frame(width: 56, height: 56)
                 .overlay(
                     Image(systemName: "flag.fill")
-                        .foregroundColor(.white)
+                        .foregroundColor(theme.primaryBackground)
                         .font(.title3)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Доп. сделки")
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
                 Text("38 акций")
                     .font(.system(size: 12, weight: .regular, design: .rounded))
-                    .foregroundColor(.gray)
+                    .foregroundColor(theme.secondaryText)
             }
 
             Spacer()
@@ -290,14 +288,14 @@ private struct PartialHoldingRow: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text("...")
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
                 Text("+7,74 BYN (+4,51%)")
                     .font(.system(size: 12, weight: .regular, design: .rounded))
-                    .foregroundColor(.green)
+                    .foregroundColor(theme.positiveColor)
             }
         }
         .padding()
-        .background(Color(red: 0.07, green: 0.07, blue: 0.09))
+        .background(theme.tertiaryBackground)
         .cornerRadius(16)
     }
 }

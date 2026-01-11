@@ -2,11 +2,12 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @State private var biometricsEnabled: Bool = true
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            theme.primaryBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 topBar
@@ -35,21 +36,21 @@ struct ProfileView: View {
             }) {
                 Image(systemName: "chevron.backward")
                     .font(.title3)
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
             }
 
             Spacer()
 
             Text("Профиль")
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
 
             Spacer()
 
             NavigationLink(destination: SettingsView()) {
                 Image(systemName: "gearshape")
                     .font(.title3)
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.primaryText)
             }
         }
         .frame(height: 44)
@@ -60,23 +61,23 @@ struct ProfileView: View {
             AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=200&q=80")) { phase in
                 switch phase {
                 case .empty:
-                    Circle()
-                        .fill(Color.gray.opacity(0.4))
-                        .overlay(
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                        )
+                        Circle()
+                            .fill(theme.secondaryBackground)
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                            )
                 case .success(let image):
                     image
                         .resizable()
                         .scaledToFill()
                 case .failure:
                     Circle()
-                        .fill(Color.gray.opacity(0.4))
+                        .fill(theme.secondaryBackground)
                         .overlay(
                             Image(systemName: "person.crop.circle.fill")
                                 .font(.system(size: 40))
-                                .foregroundColor(.white.opacity(0.7))
+                                .foregroundColor(theme.secondaryText)
                         )
                 @unknown default:
                     EmptyView()
@@ -84,15 +85,15 @@ struct ProfileView: View {
             }
             .frame(width: 106, height: 106)
             .clipShape(Circle())
-            .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 2))
+            .overlay(Circle().stroke(theme.secondaryText.opacity(0.4), lineWidth: 2))
 
             Text("Роман Юрченко")
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
 
             Text("romanyurchenko@gmail.com")
                 .font(.system(size: 14, weight: .regular, design: .rounded))
-                .foregroundColor(.white.opacity(0.65))
+                .foregroundColor(theme.secondaryText)
         }
         .frame(maxWidth: .infinity)
     }
@@ -100,7 +101,7 @@ struct ProfileView: View {
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundColor(.white.opacity(0.65))
+            .foregroundColor(theme.secondaryText)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -115,7 +116,7 @@ struct ProfileView: View {
                        trailingColor: .green)
         }
         .padding()
-        .background(Color(red: 0.12, green: 0.12, blue: 0.12))
+        .background(theme.cardBackground)
         .cornerRadius(20)
     }
 
@@ -126,7 +127,7 @@ struct ProfileView: View {
             ToggleRow(icon: "touchid", title: "Биометрический вход", isOn: $biometricsEnabled)
         }
         .padding()
-        .background(Color(red: 0.12, green: 0.12, blue: 0.12))
+        .background(theme.cardBackground)
         .cornerRadius(20)
     }
 
@@ -137,44 +138,46 @@ struct ProfileView: View {
             ProfileRow(icon: "info.circle", title: "О приложении")
         }
         .padding()
-        .background(Color(red: 0.12, green: 0.12, blue: 0.12))
+        .background(theme.cardBackground)
         .cornerRadius(20)
     }
 }
 
 private struct ProfileRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     var trailingText: String? = nil
-    var trailingColor: Color = .green
+    var trailingColor: Color? = nil
 
     var body: some View {
         HStack {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
                 .frame(width: 32, height: 32)
 
             Text(title)
                 .font(.system(size: 16, weight: .regular, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
 
             Spacer()
 
             if let trailingText {
                 Text(trailingText)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundColor(trailingColor)
+                    .foregroundColor(trailingColor ?? theme.accentColor)
             }
 
             Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+                .foregroundColor(theme.secondaryText)
         }
         .padding(.vertical, 6)
     }
 }
 
 private struct ToggleRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     @Binding var isOn: Bool
@@ -183,18 +186,18 @@ private struct ToggleRow: View {
         HStack {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
                 .frame(width: 32, height: 32)
 
             Text(title)
                 .font(.system(size: 16, weight: .regular, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(theme.primaryText)
 
             Spacer()
 
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .toggleStyle(SwitchToggleStyle(tint: Color.green))
+                .toggleStyle(SwitchToggleStyle(tint: theme.toggleTint))
         }
         .padding(.vertical, 6)
     }
