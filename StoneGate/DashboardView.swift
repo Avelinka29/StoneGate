@@ -1,8 +1,12 @@
 import SwiftUI
 
 struct DashboardView: View {
-    @Environment(\.theme) private var theme
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var showInvestmentModal = false
+
+    private var theme: Theme {
+        ThemeManager.shared.isDarkMode ? Theme() : Theme()
+    }
     private let chartPoints: [CGPoint] = [
         CGPoint(x: 0, y: 110),
         CGPoint(x: 40, y: 90),
@@ -232,7 +236,7 @@ struct DashboardView: View {
 }
 
 private struct HoldingRow: View {
-    @Environment(\.theme) private var theme
+    @EnvironmentObject private var themeManager: ThemeManager
     let logoColor: Color
     let iconText: String
     let title: String
@@ -249,7 +253,7 @@ private struct HoldingRow: View {
                     Text(iconText)
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundColor(logoColor == theme.primaryBackground ? theme.primaryText : theme.primaryBackground)
+                        .foregroundColor(logoColor == .white ? theme.primaryText : theme.primaryBackground)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
@@ -279,7 +283,7 @@ private struct HoldingRow: View {
 }
 
 private struct PartialHoldingRow: View {
-    @Environment(\.theme) private var theme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         HStack {
@@ -319,7 +323,7 @@ private struct PartialHoldingRow: View {
 }
 
 private struct InvestmentModalView: View {
-    @Environment(\.theme) private var theme
+    @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
 
@@ -359,18 +363,18 @@ private struct InvestmentModalView: View {
                     print("Starting learning module...")
                     isPresented = false
                 }) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "book.open")
-                            .font(.system(size: 18))
-                            .foregroundColor(theme.primaryBackground)
+                        HStack(spacing: 12) {
+                            Image(systemName: "book.open")
+                                .font(.system(size: 18))
+                                .foregroundColor(theme.primaryBackground)
 
-                        Text("Пройти обучение")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundColor(theme.primaryBackground)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(theme.accentColor)
+                            Text("Пройти обучение")
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundColor(theme.primaryBackground)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(theme.accentColor)
                     .cornerRadius(12)
                 }
 
@@ -380,18 +384,18 @@ private struct InvestmentModalView: View {
                     print("Starting investment interface...")
                     isPresented = false
                 }) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "paperplane")
-                            .font(.system(size: 18))
-                            .foregroundColor(theme.primaryText)
+                        HStack(spacing: 12) {
+                            Image(systemName: "paperplane")
+                                .font(.system(size: 18))
+                                .foregroundColor(theme.primaryText)
 
-                        Text("Начать сразу")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundColor(theme.primaryText)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(theme.secondaryBackground)
+                            Text("Начать сразу")
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundColor(theme.primaryText)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(theme.secondaryBackground)
                     .cornerRadius(12)
                 }
             }

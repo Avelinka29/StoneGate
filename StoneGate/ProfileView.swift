@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.theme) private var theme
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var biometricsEnabled: Bool = true
 
     var body: some View {

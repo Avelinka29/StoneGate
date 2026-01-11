@@ -3,14 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.theme) private var theme
-
-    private var isDarkModeBinding: Binding<Bool> {
-        Binding(
-            get: { theme.isDarkMode },
-            set: { theme.isDarkMode = $0 }
-        )
-    }
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         ZStack {
@@ -59,7 +52,7 @@ struct SettingsView: View {
                                 Divider()
                                     .background(theme.dividerColor)
                                     .padding(.leading, 60)
-                                SettingsRow(icon: "moon", title: "Темная тема", toggleBinding: isDarkModeBinding, iconColor: theme.primaryText, titleColor: theme.primaryText, trailingTextColor: theme.tertiaryText)
+                                SettingsRow(icon: "moon", title: "Темная тема", toggleBinding: $themeManager.isDarkMode, iconColor: theme.primaryText, titleColor: theme.primaryText, trailingTextColor: theme.tertiaryText)
                                 Divider()
                                     .background(theme.dividerColor)
                                     .padding(.leading, 60)

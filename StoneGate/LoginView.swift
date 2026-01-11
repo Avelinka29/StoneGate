@@ -2,7 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var authManager: AuthManager
-    @Environment(\.theme) private var theme
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var selectedTab = 0
     @State private var loginEmail = ""
     @State private var loginPassword = ""

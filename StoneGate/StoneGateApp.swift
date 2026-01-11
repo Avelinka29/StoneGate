@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct StoneGateApp: App {
     @StateObject private var authManager = AuthManager()
-    @StateObject private var theme = Theme()
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -18,14 +18,14 @@ struct StoneGateApp: App {
                 if authManager.isAuthenticated {
                     MainTabView()
                         .environmentObject(authManager)
-                        .environment(\.theme, theme)
+                        .environmentObject(themeManager)
                 } else {
                     LoginView()
                         .environmentObject(authManager)
-                        .environment(\.theme, theme)
+                        .environmentObject(themeManager)
                 }
             }
-            .preferredColorScheme(theme.isDarkMode ? .dark : .light)
+            .preferredColorScheme(ThemeManager.shared.isDarkMode ? .dark : .light)
         }
     }
 }
