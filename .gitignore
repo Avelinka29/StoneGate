@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# FastAPI / Backend
+backend/uploads/
+backend/test_*.png
+backend/test_*.jpg
+backend/stonegate.db-journal
+
+# Alembic
+backend/alembic.ini
+backend/alembic/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
