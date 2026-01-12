@@ -59,6 +59,54 @@ class NetworkManager {
 
         return try JSONDecoder().decode(T.self, from: data)
     }
+    
+    func requestNoResponse(
+        endpoint: String,
+        method: String = "GET",
+        body: Encodable? = nil
+    ) async throws {
+
+        guard let url = URL(string: baseURL + endpoint) else {
+            throw NetworkError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        // Добавляем токен авторизации если есть
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("DEBUG NetworkManager: Adding Authorization header: Bearer \(token)")
+        } else {
+            print("DEBUG NetworkManager: No auth token available")
+        }
+
+        // Добавляем тело запроса если есть
+        if let body = body {
+            request.httpBody = try JSONEncoder().encode(body)
+        }
+
+        print("DEBUG NetworkManager: Making request to: \(method) \(url)")
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+
+        print("DEBUG NetworkManager: Response status: \(httpResponse.statusCode)")
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("DEBUG NetworkManager: Response body: \(responseString)")
+            }
+
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw NetworkError.serverError(errorResponse.detail)
+            }
+            throw NetworkError.httpError(httpResponse.statusCode)
+        }
+    }
 
     // MARK: - Specific API Methods
 

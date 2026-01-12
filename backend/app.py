@@ -83,7 +83,8 @@ def get_current_user(email: str = Depends(verify_token), db: Session = Depends(g
     return user
 
 # Включаем роутеры после определения функций
-from routers import auth, user, portfolio
+from routers import auth, user, portfolio, cards
 app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(user.router, prefix="/user", tags=["user"])
 app.include_router(portfolio.router, prefix="/portfolio", tags=["portfolio"])
+app.include_router(cards.router, prefix="/cards", tags=["cards"])

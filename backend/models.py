@@ -33,6 +33,20 @@ class Holding(Base):
 
     owner = relationship("User", back_populates="holdings")
 
+class Card(Base):
+    __tablename__ = "cards"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    card_number = Column(String)  # Полный номер карты (будет шифроваться)
+    expiry_date = Column(String)  # Дата истечения MM/ГГ
+    cardholder_name = Column(String)  # Имя владельца
+    cardholder_surname = Column(String)  # Фамилия владельца
+    card_type = Column(String)  # Тип карты: "Домашняя" или "Рабочая"
+    is_primary = Column(Boolean, default=False)  # Основная карта
+
+    owner = relationship("User", backref="cards")
+
 # Pydantic схемы
 class UserBase(BaseModel):
     email: str
@@ -91,3 +105,23 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+
+class CardCreate(BaseModel):
+    card_number: str
+    expiry_date: str
+    cardholder_name: str
+    cardholder_surname: str
+    card_type: str
+    is_primary: bool = False
+
+class CardResponse(BaseModel):
+    id: int
+    card_number_masked: str  # Замаскированный номер карты
+    expiry_date: str
+    cardholder_name: str
+    cardholder_surname: str
+    card_type: str
+    is_primary: bool
+
+    class Config:
+        from_attributes = True

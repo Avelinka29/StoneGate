@@ -82,7 +82,9 @@ struct CardsListView: View {
                             // Cards List
                             VStack(spacing: 12) {
                                 ForEach(cards) { card in
-                                    CardRow(card: card)
+                                    CardRow(card: card, onDelete: {
+                                        deleteCard(card)
+                                    })
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -132,6 +134,23 @@ struct CardsListView: View {
             }
         }
     }
+    
+    private func deleteCard(_ card: CardData) {
+        Task {
+            do {
+                try await NetworkManager.shared.requestNoResponse(endpoint: "/cards/\(card.id)", method: "DELETE")
+                
+                await MainActor.run {
+                    // Удаляем карту из локального массива
+                    cards.removeAll { $0.id == card.id }
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Ошибка удаления карты: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
 }
 
 struct CardData: Identifiable, Codable {
@@ -152,6 +171,9 @@ struct CardData: Identifiable, Codable {
 private struct CardRow: View {
     @EnvironmentObject private var themeManager: ThemeManager
     let card: CardData
+    let onDelete: () -> Void
+    
+    @State private var showDeleteConfirmation = false
 
     private var theme: Theme { Theme() }
 
@@ -193,10 +215,28 @@ private struct CardRow: View {
                     .background(theme.accentColor.opacity(0.1))
                     .cornerRadius(8)
             }
+            
+            // Delete Button
+            Button(action: {
+                showDeleteConfirmation = true
+            }) {
+                Image(systemName: "trash")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(theme.negativeColor)
+                    .frame(width: 32, height: 32)
+            }
         }
         .padding(16)
         .background(theme.cardBackground)
         .cornerRadius(16)
+        .alert("Удалить карту?", isPresented: $showDeleteConfirmation) {
+            Button("Отмена", role: .cancel) {}
+            Button("Удалить", role: .destructive) {
+                onDelete()
+            }
+        } message: {
+            Text("Вы уверены, что хотите удалить эту карту? Это действие нельзя отменить.")
+        }
     }
 }
 
