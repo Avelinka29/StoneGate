@@ -34,12 +34,14 @@ struct UserProfile: Codable, Identifiable, Equatable {
     let email: String
     let name: String
     let phone: String?
+    let avatar_url: String?
     let verified: Bool
     let biometrics_enabled: Bool
     let notifications_enabled: Bool
 
     enum CodingKeys: String, CodingKey {
         case id, email, name, phone, verified
+        case avatar_url = "avatar_url"
         case biometrics_enabled = "biometrics_enabled"
         case notifications_enabled = "notifications_enabled"
     }
@@ -49,6 +51,7 @@ struct UserProfile: Codable, Identifiable, Equatable {
                lhs.email == rhs.email &&
                lhs.name == rhs.name &&
                lhs.phone == rhs.phone &&
+               lhs.avatar_url == rhs.avatar_url &&
                lhs.verified == rhs.verified &&
                lhs.biometrics_enabled == rhs.biometrics_enabled &&
                lhs.notifications_enabled == rhs.notifications_enabled
@@ -63,6 +66,23 @@ struct UserSettingsUpdate: Codable {
         self.biometrics_enabled = biometrics_enabled
         self.notifications_enabled = notifications_enabled
     }
+}
+
+struct UserProfileUpdate: Codable {
+    let name: String?
+    let email: String?
+    let phone: String?
+
+    init(name: String? = nil, email: String? = nil, phone: String? = nil) {
+        self.name = name
+        self.email = email
+        self.phone = phone
+    }
+}
+
+struct AvatarUploadResponse: Codable {
+    let avatar_url: String
+    let message: String
 }
 
 // MARK: - Portfolio Models

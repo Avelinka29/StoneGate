@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
+from pathlib import Path
 
 from database import get_db
 from models import User, Holding
@@ -23,6 +25,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Создаем папку для загрузок если её нет
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+# Монтируем статические файлы для раздачи аватаров
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # JWT настройки из конфигурации
 SECRET_KEY = config.SECRET_KEY

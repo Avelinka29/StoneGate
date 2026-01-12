@@ -4,6 +4,7 @@ struct DashboardView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var showInvestmentModal = false
     @State private var showLearningView = false
+    @State private var userProfile: UserProfile?
 
     private var theme: Theme {
         ThemeManager.shared.isDarkMode ? Theme() : Theme()
@@ -88,16 +89,54 @@ struct DashboardView: View {
                 }
             )
         )
+        .onAppear {
+            Task {
+                await loadUserProfile()
+            }
+        }
     }
 
     private var topNavigation: some View {
         HStack(spacing: 12) {
             NavigationLink(destination: ProfileView()) {
-                AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=200&q=80")) { phase in
-                    if let image = phase.image {
-                        image.resizable()
+                Group {
+                    if let avatarURL = userProfile?.avatar_url,
+                       let url = URL(string: NetworkManager.shared.baseURL + avatarURL) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .empty:
+                                Circle()
+                                    .fill(theme.secondaryBackground)
+                                    .overlay(
+                                        ProgressView()
+                                            .progressViewStyle(.circular)
+                                            .scaleEffect(0.5)
+                                    )
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure:
+                                Circle()
+                                    .fill(theme.secondaryBackground)
+                                    .overlay(
+                                        Image(systemName: "person.crop.circle.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(theme.secondaryText)
+                                    )
+                            @unknown default:
+                                Circle()
+                                    .fill(theme.secondaryBackground)
+                            }
+                        }
                     } else {
-                        theme.secondaryBackground
+                        Circle()
+                            .fill(theme.secondaryBackground)
+                            .overlay(
+                                Image(systemName: "person.crop.circle.fill")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(theme.secondaryText)
+                            )
                     }
                 }
                 .frame(width: 34, height: 34)
@@ -239,6 +278,19 @@ struct DashboardView: View {
                 .padding(.vertical, 16)
                 .background(theme.accentColor)
                 .cornerRadius(26)
+        }
+    }
+    
+    // MARK: - Actions
+    
+    private func loadUserProfile() async {
+        do {
+            let profile = try await NetworkManager.shared.getUserProfile()
+            await MainActor.run {
+                userProfile = profile
+            }
+        } catch {
+            print("Failed to load user profile: \(error.localizedDescription)")
         }
     }
 }

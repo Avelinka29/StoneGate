@@ -11,6 +11,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     phone = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
     verified = Column(Boolean, default=False)
     hashed_password = Column(String)
     biometrics_enabled = Column(Boolean, default=False)
@@ -37,6 +38,7 @@ class UserBase(BaseModel):
     email: str
     name: str
     phone: str | None = None
+    avatar_url: str | None = None
 
 class UserCreate(UserBase):
     password: str
@@ -47,12 +49,17 @@ class UserLogin(BaseModel):
 
 class UserUpdate(BaseModel):
     name: str | None = None
+    email: str | None = None
     phone: str | None = None
     biometrics_enabled: bool | None = None
     notifications_enabled: bool | None = None
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     id: int
+    email: str
+    name: str
+    phone: str | None = None
+    avatar_url: str | None = None
     verified: bool
     biometrics_enabled: bool
     notifications_enabled: bool

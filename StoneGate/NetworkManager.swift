@@ -3,7 +3,7 @@ import Foundation
 class NetworkManager {
     static let shared = NetworkManager()
 
-    private let baseURL = "http://127.0.0.1:8001" // URL FastAPI сервера
+    let baseURL = "http://127.0.0.1:8001" // URL FastAPI сервера
     var authToken: String?
 
     private init() {}
@@ -72,6 +72,81 @@ class NetworkManager {
 
     func updateUserSettings(_ settings: UserSettingsUpdate) async throws -> UserProfile {
         return try await request(endpoint: "/user/settings", method: "PATCH", body: settings)
+    }
+    
+    func updateUserProfile(_ profile: UserProfileUpdate) async throws -> UserProfile {
+        return try await request(endpoint: "/user/profile", method: "PATCH", body: profile)
+    }
+    
+    func uploadAvatar(_ imageData: Data) async throws -> AvatarUploadResponse {
+        guard let url = URL(string: baseURL + "/user/avatar") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        // Добавляем токен авторизации
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Создаем multipart/form-data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Добавляем файл
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"avatar.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw NetworkError.serverError(errorResponse.detail)
+            }
+            throw NetworkError.httpError(httpResponse.statusCode)
+        }
+        
+        return try JSONDecoder().decode(AvatarUploadResponse.self, from: data)
+    }
+    
+    func deleteAvatar() async throws {
+        guard let url = URL(string: baseURL + "/user/avatar") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw NetworkError.serverError(errorResponse.detail)
+            }
+            throw NetworkError.httpError(httpResponse.statusCode)
+        }
     }
 
     func requestVerification() async throws -> VerificationResponse {
