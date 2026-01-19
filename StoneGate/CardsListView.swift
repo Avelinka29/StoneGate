@@ -177,6 +177,18 @@ private struct CardRow: View {
 
     private var theme: Theme { Theme() }
 
+    private func formatCardNumber(_ number: String) -> String {
+        let digits = number.filter { $0.isNumber }
+        var result = ""
+        for (index, digit) in digits.enumerated() {
+            if index > 0 && index % 4 == 0 {
+                result += " "
+            }
+            result += String(digit)
+        }
+        return result
+    }
+
     var body: some View {
         HStack(spacing: 16) {
             // Bank Logo Placeholder
@@ -191,7 +203,7 @@ private struct CardRow: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(card.number)
+                Text(formatCardNumber(card.number))
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(theme.primaryText)
 

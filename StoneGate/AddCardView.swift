@@ -20,6 +20,31 @@ struct AddCardView: View {
         case work = "Рабочая"
     }
 
+    // Функции форматирования
+    private func formatCardNumber(_ number: String) -> String {
+        let digits = number.filter { $0.isNumber }
+        var result = ""
+        for (index, digit) in digits.enumerated() {
+            if index > 0 && index % 4 == 0 {
+                result += " "
+            }
+            result += String(digit)
+        }
+        return String(result.prefix(19)) // Максимум 16 цифр + 3 пробела
+    }
+
+    private func formatExpiryDate(_ date: String) -> String {
+        let digits = date.filter { $0.isNumber }
+        var result = ""
+        for (index, digit) in digits.enumerated() {
+            if index == 2 {
+                result += "/"
+            }
+            result += String(digit)
+        }
+        return String(result.prefix(5)) // MM/ГГ - максимум 5 символов
+    }
+
     var body: some View {
         ZStack {
             theme.primaryBackground.ignoresSafeArea()
@@ -59,7 +84,8 @@ struct AddCardView: View {
                                 title: "Номер карты",
                                 placeholder: "**** **** **** ****",
                                 text: $cardNumber,
-                                keyboardType: .numberPad
+                                keyboardType: .numberPad,
+                                formatter: formatCardNumber
                             )
 
                             HStack(spacing: 16) {
@@ -67,7 +93,8 @@ struct AddCardView: View {
                                     title: "Дата истечения",
                                     placeholder: "MM/ГГ",
                                     text: $expiryDate,
-                                    keyboardType: .numberPad
+                                    keyboardType: .numberPad,
+                                    formatter: formatExpiryDate
                                 )
 
                                 CardTextField(
@@ -224,6 +251,7 @@ private struct CardTextField: View {
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
     var isSecure: Bool = false
+    var formatter: ((String) -> String)? = nil
 
     private var theme: Theme { Theme() }
 
@@ -253,6 +281,14 @@ private struct CardTextField: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(theme.borderColor, lineWidth: 1)
             )
+            .onChange(of: text) { newValue in
+                if let formatter = formatter {
+                    let formatted = formatter(newValue)
+                    if formatted != newValue {
+                        text = formatted
+                    }
+                }
+            }
         }
     }
 }
