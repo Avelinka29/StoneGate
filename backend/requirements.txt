@@ -1,7 +1,28 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-sqlalchemy==2.0.23
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
+# Flask Core
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+
+# Database
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.9
 alembic==1.12.1
+
+# Authentication & Security
+PyJWT==2.8.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# File uploads
+python-multipart==0.0.6
+Werkzeug==3.0.1
+
+# Environment variables
+python-dotenv==1.0.0
+
+# WSGI Server
+gunicorn==21.2.0
+
+# Validation
+pydantic==2.5.2

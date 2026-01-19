@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: stonegate_postgres_prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-stonegate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stonegate_password}
+      POSTGRES_DB: ${POSTGRES_DB:-stonegate_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stonegate}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - stonegate_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stonegate_backend_prod
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-stonegate}:${POSTGRES_PASSWORD:-stonegate_password}@postgres:5432/${POSTGRES_DB:-stonegate_db}
+      SECRET_KEY: ${SECRET_KEY}
+      FLASK_ENV: production
+      FLASK_DEBUG: 0
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 2 &&
+        flask db upgrade &&
+        gunicorn -w 4 -b 0.0.0.0:8000 'app:create_app()'
+      "
+    restart: unless-stopped
+    networks:
+      - stonegate_network
+
+  # Nginx для production (опционально)
+  nginx:
+    image: nginx:alpine
+    container_name: stonegate_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./uploads:/usr/share/nginx/html/uploads:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - stonegate_network
+
+volumes:
+  postgres_data_prod:
+
+networks:
+  stonegate_network:
+    driver: bridge

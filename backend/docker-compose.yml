@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: stonegate_postgres
+    environment:
+      POSTGRES_USER: stonegate
+      POSTGRES_PASSWORD: stonegate_password
+      POSTGRES_DB: stonegate_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stonegate"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stonegate_network
+
+  backend:
+    build: .
+    container_name: stonegate_backend
+    environment:
+      DATABASE_URL: postgresql://stonegate:stonegate_password@postgres:5432/stonegate_db
+      SECRET_KEY: your-super-secret-key-change-in-production
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Creating database tables...' &&
+        python -c 'from app import create_app; app = create_app(); app.app_context().push(); from database import db; db.create_all(); print(\"Tables created successfully!\")' &&
+        echo 'Starting Flask server...' &&
+        python app.py
+      "
+    networks:
+      - stonegate_network
+
+volumes:
+  postgres_data:
+
+networks:
+  stonegate_network:
+    driver: bridge
