@@ -6,6 +6,7 @@ struct InvestmentConfirmationView: View {
 
     let investmentAmount: Double
     let selectedStrategy: QuickInvestmentView.InvestmentStrategy
+    @State private var showSuccessView = false
 
     private var theme: Theme { Theme() }
 
@@ -151,8 +152,7 @@ struct InvestmentConfirmationView: View {
                 // Footer (Fixed at bottom)
                 VStack(spacing: 12) {
                     Button(action: {
-                        // TODO: Process investment
-                        print("Investing \(Int(investmentAmount)) BYN in \(selectedStrategy.title)")
+                        showSuccessView = true
                     }) {
                         Text("Инвестировать \(Int(investmentAmount)) BYN")
                             .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -168,6 +168,14 @@ struct InvestmentConfirmationView: View {
             }
         }
         .navigationBarHidden(true)
+        .overlay(
+            NavigationLink(destination: InvestmentSuccessView(
+                investmentAmount: investmentAmount,
+                selectedStrategy: selectedStrategy
+            ), isActive: $showSuccessView) {
+                EmptyView()
+            }
+        )
     }
 }
 
