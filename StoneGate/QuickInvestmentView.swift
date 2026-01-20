@@ -5,6 +5,7 @@ struct QuickInvestmentView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var investmentAmount: Double = 500
     @State private var selectedStrategy: InvestmentStrategy = .balanced
+    @State private var showConfirmationView = false
 
     private var theme: Theme { Theme() }
 
@@ -169,8 +170,7 @@ struct QuickInvestmentView: View {
                 // Footer (Fixed at bottom)
                 VStack(spacing: 12) {
                     Button(action: {
-                        // TODO: Navigate to next step
-                        print("Continue with amount: \(Int(investmentAmount)) BYN, strategy: \(selectedStrategy.title)")
+                        showConfirmationView = true
                     }) {
                         Text("Продолжить")
                             .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -192,6 +192,14 @@ struct QuickInvestmentView: View {
             }
         }
         .navigationBarHidden(true)
+        .overlay(
+            NavigationLink(destination: InvestmentConfirmationView(
+                investmentAmount: investmentAmount,
+                selectedStrategy: selectedStrategy
+            ), isActive: $showConfirmationView) {
+                EmptyView()
+            }
+        )
     }
 }
 
