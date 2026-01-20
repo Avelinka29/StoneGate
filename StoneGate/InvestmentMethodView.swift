@@ -3,6 +3,7 @@ import SwiftUI
 struct InvestmentMethodView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var themeManager: ThemeManager
+    @State private var showQuickInvestmentView = false
 
     private var theme: Theme { Theme() }
 
@@ -55,7 +56,7 @@ struct InvestmentMethodView: View {
                                 title: "Быстрое инвестирование",
                                 subtitle: "С минимальной суммой",
                                 action: {
-                                    // TODO: Navigate to quick investment
+                                    showQuickInvestmentView = true
                                 }
                             )
 
@@ -119,6 +120,11 @@ struct InvestmentMethodView: View {
             }
         }
         .navigationBarHidden(true)
+        .overlay(
+            NavigationLink(destination: QuickInvestmentView(), isActive: $showQuickInvestmentView) {
+                EmptyView()
+            }
+        )
     }
 }
 
