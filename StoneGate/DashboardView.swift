@@ -4,6 +4,7 @@ struct DashboardView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var showInvestmentModal = false
     @State private var showLearningView = false
+    @State private var showInvestView = false
     @State private var userProfile: UserProfile?
 
     private var theme: Theme {
@@ -78,14 +79,21 @@ struct DashboardView: View {
 
                     InvestmentModalView(isPresented: $showInvestmentModal) {
                         showLearningView = true
+                    } onStartInvesting: {
+                        showInvestView = true
                     }
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                         .zIndex(1)
                 }
             }
             .background(
-                NavigationLink(destination: LearningView(), isActive: $showLearningView) {
-                    EmptyView()
+                Group {
+                    NavigationLink(destination: LearningView(), isActive: $showLearningView) {
+                        EmptyView()
+                    }
+                    NavigationLink(destination: InvestView(), isActive: $showInvestView) {
+                        EmptyView()
+                    }
                 }
             )
         )
@@ -387,6 +395,7 @@ private struct InvestmentModalView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
     var onStartLearning: (() -> Void)? = nil
+    var onStartInvesting: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 20) {
@@ -440,9 +449,8 @@ private struct InvestmentModalView: View {
 
                 // Начать сразу button
                 Button(action: {
-                    // TODO: Navigate to main investment interface
-                    print("Starting investment interface...")
                     isPresented = false
+                    onStartInvesting?()
                 }) {
                         HStack(spacing: 12) {
                             Image(systemName: "paperplane")
