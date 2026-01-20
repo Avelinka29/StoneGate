@@ -4,6 +4,7 @@ struct InvestView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var searchText = ""
+    @State private var showInvestmentMethodView = false
 
     private var theme: Theme { Theme() }
 
@@ -52,7 +53,7 @@ struct InvestView: View {
                     VStack(spacing: 24) {
                         // Green "Start Investing" Button
                         Button(action: {
-                            // TODO: Start investing action
+                            showInvestmentMethodView = true
                         }) {
                             Text("Начать инвестировать")
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -163,6 +164,11 @@ struct InvestView: View {
             }
         }
         .navigationBarHidden(true)
+        .overlay(
+            NavigationLink(destination: InvestmentMethodView(), isActive: $showInvestmentMethodView) {
+                EmptyView()
+            }
+        )
     }
 }
 
