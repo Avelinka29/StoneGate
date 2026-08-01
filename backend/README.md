@@ -388,3 +388,6 @@ docker-compose ps
 **Framework:** Flask 3.0  
 **Database:** PostgreSQL 15  
 **Python:** 3.11+
+
+для запуска ввести эту команду в терминал
+docker-compose up --build
